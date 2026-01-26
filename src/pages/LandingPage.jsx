@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
-import { Box, Typography, Button, Grid, IconButton } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { useEffect, useState, lazy, Suspense, useMemo, useCallback } from "react";
+import { Box, Typography} from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { selectAllCategories, selectCategoriesLoading, selectCategoryError, fetchCategories } from "../slices/categorySlice";
@@ -9,136 +8,34 @@ import Loader from "../components/common/Loader/Loader";
 import ErrorComponent from "../components/common/ErrorComponent/ErrorComponent";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import Section from "../components/pages/landingPage/Section";
+import CategoryCard, { CardImage, CardOverlay } from "../components/pages/landingPage/CategoryCard";
+import CardContent from "../components/pages/landingPage/CardContent";
+import CategoryRow from "../components/pages/landingPage/CategoryRow";
+import CardsContainer from "../components/pages/landingPage/CardsContainer";
+import CardWrapper from "../components/pages/landingPage/CardWrapper";
+import NavigationButton from "../components/pages/landingPage/NavigationButton";
+import ExploreWrapper from "../components/pages/landingPage/ExploreWrapper";
+import ExploreButton from "../components/pages/landingPage/ExploreButton";
+import { getPreviousIndex, getNextIndex, getVisibleItems } from "../utils/carouselUtils";
+import { useAutoScroll } from "../hooks/useAutoScroll";
 
-const Section = styled(Box)(({ theme }) => ({
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "center",
-  padding: theme.spacing(3),
-  gap: theme.spacing(3),
-  width: "100%",
-  maxWidth: "100%",
-}));
+// Helper function to generate srcSet for responsive images
+const getImageSrcSet = (categoryName) => {
+  const name = categoryName.toLowerCase();
+  const sizes = [320, 480, 640, 768, 1024];
+  return sizes.map(size => `/images/categories/${name}-${size}w.avif ${size}w`).join(', ');
+};
 
-const CategoryCard = styled(Box)(({ theme, bg }) => ({
-  height: "100%",
-  minHeight: "280px",
-  width: "100%",
-  borderRadius: theme.shape.borderRadius * 2,
-  backgroundImage: `linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url(${bg})`,
-  backgroundSize: "cover",
-  backgroundPosition: "center",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  transition: "transform 0.3s ease, box-shadow 0.3s ease",
-  cursor: "pointer",
-  [theme.breakpoints.up('md')]: {
-    minHeight: "320px",
-  },
-  "&:hover": {
-    transform: "translateY(-6px)",
-    boxShadow: theme.shadows[6],
-  },
-}));
+// Helper function to generate WebP fallback srcSet
+const getWebPSrcSet = (categoryName) => {
+  const name = categoryName.toLowerCase();
+  const sizes = [320, 480, 640, 768, 1024];
+  return sizes.map(size => `/images/categories/${name}-${size}w.webp ${size}w`).join(', ');
+};
 
-const CardContent = styled(Box)(({ theme }) => ({
-  textAlign: "center",
-  color: "#ffffffcc",
-}));
-
-  const CategoryRow = styled(Box, {
-    name: "CategoryRow",
-    slot: "Root",
-  })(({ theme }) => ({
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: theme.spacing(2),
-    width: '100%',
-    flexDirection: 'row',
-    [theme.breakpoints.down('md')]: {
-      flexDirection: 'column',
-      gap: theme.spacing(3),
-    },
-  }));
-
-  const CardsContainer = styled(Box, {
-    name: "CardsContainer",
-    slot: "Root",
-  })(({ theme }) => ({
-    display: "flex",
-    gap: theme.spacing(3),
-    justifyContent: "center",
-    alignItems: "stretch",
-    flexWrap: 'nowrap',
-    width: '100%',
-    maxWidth: '1400px',
-    [theme.breakpoints.down('md')]: {
-      flexDirection: 'column',
-      maxWidth: '500px',
-      gap: theme.spacing(2),
-    },
-  }));
-
-  const CardWrapper = styled(Box, {
-    name: "CardWrapper",
-    slot: "Root",
-  })(({ theme }) => ({
-    flex: '1 1 0',
-    minWidth: 0,
-    display: 'flex',
-    [theme.breakpoints.down('md')]: {
-      flex: '0 0 auto',
-      width: '100%',
-    },
-  }));
-
-  const NavigationButton = styled(IconButton)(({ theme }) => ({
-    flexShrink: 0,
-    [theme.breakpoints.down('md')]: {
-      display: 'none',
-    },
-  }));
-
-  /* Explore button container */
-  const ExploreWrapper = styled(Box, {
-    name: "ExploreWrapper",
-    slot: "Root",
-  })(({ theme }) => ({
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: theme.spacing(4),
-    width: '100%',
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-    paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
-  }));
-
-  const ExploreButton = styled(Button)(({ theme }) => ({
-    minWidth: '200px',
-    paddingTop: theme.spacing(1.5),
-    paddingBottom: theme.spacing(1.5),
-    paddingLeft: theme.spacing(4),
-    paddingRight: theme.spacing(4),
-    fontSize: '1rem',
-    [theme.breakpoints.up('sm')]: {
-      minWidth: '280px',
-      fontSize: '1.1rem',
-      paddingLeft: theme.spacing(5),
-      paddingRight: theme.spacing(5),
-    },
-    [theme.breakpoints.up('md')]: {
-      minWidth: '350px',
-      fontSize: '1.2rem',
-      paddingTop: theme.spacing(2),
-      paddingBottom: theme.spacing(2),
-      paddingLeft: theme.spacing(6),
-      paddingRight: theme.spacing(6),
-    },
-  }));
+// Sizes attribute based on actual display sizes
+const imageSizes = "(max-width: 600px) 280px, (max-width: 900px) 320px, (max-width: 1200px) 380px, 455px";
 
 /* ---------------- component ---------------- */
 export default function LandingPage() {
@@ -149,41 +46,39 @@ export default function LandingPage() {
   const isLoading = useSelector(selectCategoriesLoading);
   const isError = useSelector(selectCategoryError);
   const [startIndex, setStartIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
     dispatch(fetchCategories());
   }, [dispatch]);
 
-  const handleCategoryClick = (categoryId) => {
+  const handleCategoryClick = useCallback((categoryId) => {
     dispatch(setFilter({ categoryId }));
     navigate('/blogs');
-  };
+  }, [dispatch, navigate]);
 
 
-  const handlePrev = () => {
-    setStartIndex((prevIndex) => {
-      const newIndex = prevIndex - 1;
-      return newIndex < 0 ? categories.length - 1 : newIndex;
-    });
-  }
+  const handlePrev = useCallback(() => {
+    if (!categories || categories.length === 0) return;
+    setStartIndex((prevIndex) => getPreviousIndex(prevIndex, categories.length));
+  }, [categories]);
 
-  const handleNext = () => {
-    setStartIndex((prevIndex) => {
-      return (prevIndex + 1) % categories.length;
-    });
-  }
+  const handleNext = useCallback(() => {
+    if (!categories || categories.length === 0) return;
+    setStartIndex((prevIndex) => getNextIndex(prevIndex, categories.length));
+  }, [categories]);
 
-  const getVisibleCategories = () => {
-    if (categories.length === 0) return [];
-    const visible = [];
-    for (let i = 0; i < 3; i++) {
-      const index = (startIndex + i) % categories.length;
-      visible.push(categories[index]);
-    }
-    return visible;
-  };
+  // Auto-scroll every 5 seconds using custom hook
+  useAutoScroll(handleNext, categories, isPaused, 5000);
 
-  const visibleCategories = getVisibleCategories();
+
+  const visibleCategories = useMemo(() => {
+    return getVisibleItems(categories, startIndex, 5);
+  }, [categories, startIndex]);
+
+  const handleMouseEnter = () => setIsPaused(true);
+  const handleMouseLeave = () => setIsPaused(false);
+
 
   return (
     <Section>
@@ -193,24 +88,57 @@ export default function LandingPage() {
         ) : isError ? (
           <ErrorComponent />
         ) : (
-          <CategoryRow>
+          <CategoryRow
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
 
             <NavigationButton onClick={handlePrev} aria-label="Swipe left">
               <ArrowBackIosNewIcon />
             </NavigationButton>
 
             <CardsContainer>
-              {visibleCategories.map((cat) => (
-                <CardWrapper key={cat.id}>
-                  <CategoryCard bg={cat.bg} onClick={() => handleCategoryClick(cat.id)}>
-                    <CardContent>
-                      <Typography variant="h5" fontWeight={400} mb={2}>
-                        {cat.name}
-                      </Typography>
-                    </CardContent>
-                  </CategoryCard>
-                </CardWrapper>
-              ))}
+              {visibleCategories.map((cat) => {
+                if (!cat || !cat.id || !cat.name) return null;
+                const isLCP = cat.name === 'Technology';
+                const categoryName = cat.name.toLowerCase();
+                
+                return (
+                  <CardWrapper key={`${cat.id}-${cat.position}`} position={cat.position}>
+                    <CategoryCard 
+                      onClick={() => handleCategoryClick(cat.id)}
+                      position={cat.position}
+                    >
+                      <picture>
+                        <source
+                          type="image/avif"
+                          srcSet={getImageSrcSet(categoryName)}
+                          sizes={imageSizes}
+                        />
+                        <source
+                          type="image/webp"
+                          srcSet={getWebPSrcSet(categoryName)}
+                          sizes={imageSizes}
+                        />
+                        <CardImage
+                          src={`/images/categories/${categoryName}-640w.avif`}
+                          srcSet={getImageSrcSet(categoryName)}
+                          sizes={imageSizes}
+                          alt={`${cat.name} category`}
+                          fetchpriority={isLCP ? "high" : undefined}
+                          loading={isLCP ? undefined : "lazy"}
+                        />
+                      </picture>
+                      <CardOverlay className="card-overlay" />
+                      <CardContent>
+                        <Typography variant="h5" fontWeight={400} mb={2}>
+                          {cat.name}
+                        </Typography>
+                      </CardContent>
+                    </CategoryCard>
+                  </CardWrapper>
+                );
+              })}
             </CardsContainer>
 
             <NavigationButton onClick={handleNext} aria-label="Swipe right">

@@ -1,5 +1,11 @@
-import { ModalBox, ModalTitle, StyledTextField, ButtonContainer, ModalAlert } from "./LoginModal.styles";
-import { Modal, Button } from "@mui/material"
+import ModalBox from "./helperComponents/ModalBox";
+import ModalTitle from "./helperComponents/ModalTitle";
+import StyledTextField from "./helperComponents/StyledTextField";
+import ButtonContainer from "./helperComponents/ButtonContainer";
+import ModalAlert from "./helperComponents/ModalAlert";
+import LoginButton from "./helperComponents/LoginButton";
+import CancelButton from "./helperComponents/CancelButton";
+import { Modal } from "@mui/material"
 import { selectIsAuthenticated, selectUserLoading, selectUserError, loginWithEmail, clearError } from "../../../slices/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
@@ -40,20 +46,18 @@ export default function LoginModal({ open, handleClose }) {
             aria-describedby="modal-modal-description"
         >
             <ModalBox>
-                <ModalTitle id="modal-modal-title" variant="h5" component="h2">
+                <ModalTitle id="modal-modal-title">
                     Welcome Back
                 </ModalTitle>
                 
                 {error && (
-                    <ModalAlert severity="error">
+                    <ModalAlert>
                         {error}
                     </ModalAlert>
                 )}
                 
                 <StyledTextField
-                    fullWidth
                     label="Email"
-                    variant="outlined"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -61,12 +65,12 @@ export default function LoginModal({ open, handleClose }) {
                 />
                 
                 <ButtonContainer>
-                    <Button variant="contained" fullWidth onClick={handleLogin} disabled={isLoading || !email}>
+                    <LoginButton onClick={handleLogin} disabled={isLoading || !email}>
                         {isLoading ? "Logging in..." : "Login"}
-                    </Button>
-                    <Button variant="outlined" fullWidth onClick={handleClose} disabled={isLoading}>
+                    </LoginButton>
+                    <CancelButton onClick={handleClose} disabled={isLoading}>
                         Cancel
-                    </Button>
+                    </CancelButton>
                 </ButtonContainer>
             </ModalBox>
         </Modal>

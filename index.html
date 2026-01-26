@@ -3,8 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
+        <link rel="icon" type="image/svg+xml" href="/public/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"  />
     <meta name="description" content="A blogging platform to read and publish articles on technology, programming, and software development." />
+    
+    <!-- Preload LCP image for immediate discovery -->
+    <link rel="preload" as="image" href="/images/categories/technology-640w.avif" 
+          imagesrcset="/images/categories/technology-320w.avif 320w, /images/categories/technology-480w.avif 480w, /images/categories/technology-640w.avif 640w, /images/categories/technology-768w.avif 768w, /images/categories/technology-1024w.avif 1024w"
+          imagesizes="(max-width: 600px) 280px, (max-width: 900px) 320px, (max-width: 1200px) 380px, 455px"
+          fetchpriority="high" />
+    
     <title>NotesApp</title>
   </head>
   <body>

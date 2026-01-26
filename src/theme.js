@@ -3,8 +3,12 @@ import { createTheme } from "@mui/material/styles";
 const theme = createTheme({
   palette: {
     mode: "light", // later: dynamic dark/light
-    primary: { main: "#cf395d" },
-    secondary: { main: "#4f46e5" },
+    primary: { main: "#cf395d",
+      soft: "#ffffff"
+     },
+    secondary: { main: "#ffffff",
+      soft: "#ffffffcc"
+     },
     background: {
       default: "#f9fafb",
       paper: "#ffffff",

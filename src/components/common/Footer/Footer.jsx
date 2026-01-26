@@ -1,15 +1,14 @@
-import { Typography } from "@mui/material";
-import {
-  FooterWrapper,
-  FooterLayout,
-  FooterBrand,
-  FooterColumn,
-  MutedText,
-  FooterDivider,
-  FooterLink,
-  MutedDescription,
-  FooterContainer
-} from "./Footer.styles";
+import FooterWrapper from "./helperComponents/FooterWrapper";
+import FooterLayout from "./helperComponents/FooterLayout";
+import FooterBrand from "./helperComponents/FooterBrand";
+import FooterColumn from "./helperComponents/FooterColumn";
+import MutedText from "./helperComponents/MutedText";
+import FooterDivider from "./helperComponents/FooterDivider";
+import FooterLink from "./helperComponents/FooterLink";
+import MutedDescription from "./helperComponents/MutedDescription";
+import FooterContainer from "./helperComponents/FooterContainer";
+import SubtitleTypography from "./helperComponents/SubtitleTypography";
+import TitleTypography from "./helperComponents/TitleTypography";
 
 export default function Footer() {
   return (
@@ -22,9 +21,9 @@ export default function Footer() {
         >
           {/* Brand */}
           <FooterBrand>
-            <Typography variant="h6" fontWeight="bold">
+            <TitleTypography>
               NotesApp
-            </Typography>
+            </TitleTypography>
             <MutedDescription variant="body2">
               Read, Write, and Share ideas.
             </MutedDescription>
@@ -32,9 +31,9 @@ export default function Footer() {
 
           {/* Links */}
           <FooterColumn spacing={1}>
-            <Typography variant="subtitle1" fontWeight="bold">
+            <SubtitleTypography>
               Quick Links
-            </Typography>
+            </SubtitleTypography>
             <FooterLink href="/" underline="hover">Home</FooterLink>
             <FooterLink href="/blogs" underline="hover">Blogs</FooterLink>
             <FooterLink href="/create" underline="hover">Create Blog</FooterLink>
@@ -42,9 +41,9 @@ export default function Footer() {
 
           {/* About */}
           <FooterColumn spacing={1}>
-            <Typography variant="subtitle1" fontWeight="bold">
+            <SubtitleTypography>
               About
-            </Typography>
+            </SubtitleTypography>
             <MutedText variant="body2">
               Built with passion.
             </MutedText>

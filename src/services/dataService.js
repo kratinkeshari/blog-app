@@ -16,9 +16,13 @@ export const findOrCreateUserByEmail = (email) => {
   }
 
   const users = getUsers();
+  if (!users || !Array.isArray(users)) {
+    throw new Error('Users data is not available');
+  }
+  
   const normalizedEmail = email.toLowerCase().trim();
   
-  let user = users.find(u => u.email.toLowerCase() === normalizedEmail);
+  let user = users.find(u => u && u.email && u.email.toLowerCase() === normalizedEmail);
   
   if (!user) {
     user = {
@@ -36,13 +40,26 @@ export const findOrCreateUserByEmail = (email) => {
 
 export const getAllBlogs = () => {
   const blogs = getBlogs();
-  return blogs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  if (!blogs || !Array.isArray(blogs)) {
+    return [];
+  }
+  return blogs
+    .filter(blog => blog && blog.createdAt)
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 };
 
 export const getBlogsByCategory = (categoryId) => {
+  if (!categoryId) {
+    throw new Error('Category ID is required');
+  }
+  
   const blogs = getBlogs();
+  if (!blogs || !Array.isArray(blogs)) {
+    return [];
+  }
+  
   return blogs
-    .filter(blog => blog.categoryId === categoryId)
+    .filter(blog => blog && blog.categoryId === categoryId && blog.createdAt)
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 };
 
@@ -60,7 +77,11 @@ export const createBlog = (blogData, authorEmail, categoryId) => {
 
   // Validate category exists
   const categories = getCategories();
-  const category = categories.find(c => c.id === categoryId);
+  if (!categories || !Array.isArray(categories)) {
+    throw new Error('Categories data is not available');
+  }
+  
+  const category = categories.find(c => c && c.id === categoryId);
   if (!category) {
     throw new Error('Invalid category ID');
   }
@@ -84,6 +105,10 @@ export const createBlog = (blogData, authorEmail, categoryId) => {
   };
 
   const blogs = getBlogs();
+  if (!blogs || !Array.isArray(blogs)) {
+    throw new Error('Blogs data is not available');
+  }
+  
   blogs.push(newBlog);
   setBlogs(blogs);
 
@@ -97,13 +122,21 @@ export const deleteBlog = (blogId, userEmail) => {
   }
 
   const blogs = getBlogs();
-  const blogIndex = blogs.findIndex(b => b.id === blogId);
+  if (!blogs || !Array.isArray(blogs)) {
+    throw new Error('Blogs data is not available');
+  }
+  
+  const blogIndex = blogs.findIndex(b => b && b.id === blogId);
 
   if (blogIndex === -1) {
     throw new Error('Blog not found');
   }
 
   const blog = blogs[blogIndex];
+  if (!blog || !blog.authorEmail) {
+    throw new Error('Blog data is invalid');
+  }
+  
   const normalizedEmail = userEmail.toLowerCase().trim();
 
   if (blog.authorEmail.toLowerCase() !== normalizedEmail) {
@@ -128,7 +161,11 @@ export const toggleLike = (blogId, userEmail) => {
   const normalizedEmail = user.email;
 
   const blogs = getBlogs();
-  const blog = blogs.find(b => b.id === blogId);
+  if (!blogs || !Array.isArray(blogs)) {
+    throw new Error('Blogs data is not available');
+  }
+  
+  const blog = blogs.find(b => b && b.id === blogId);
 
   if (!blog) {
     throw new Error('Blog not found');
@@ -163,7 +200,11 @@ export const toggleLike = (blogId, userEmail) => {
 };
 
 export const getAllCategories = () => {
-  return getCategories();
+  const categories = getCategories();
+  if (!categories || !Array.isArray(categories)) {
+    return [];
+  }
+  return categories.filter(cat => cat && cat.id);
 };
 
 export const getActiveUserEmail = () => {

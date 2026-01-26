@@ -1,4 +1,7 @@
-import {Wrapper, Icon, Title, SubText} from './ErrorComponent.styles'
+import Wrapper from './helperComponents/Wrapper';
+import Icon from './helperComponents/Icon';
+import Title from './helperComponents/Title';
+import SubText from './helperComponents/SubText';
 
 export default function ErrorComponent() {
   return (
