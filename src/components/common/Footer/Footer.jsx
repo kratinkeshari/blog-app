@@ -9,6 +9,7 @@ import MutedDescription from "./helperComponents/MutedDescription";
 import FooterContainer from "./helperComponents/FooterContainer";
 import SubtitleTypography from "./helperComponents/SubtitleTypography";
 import TitleTypography from "./helperComponents/TitleTypography";
+import { Link as RouterLink } from "react-router-dom";
 
 export default function Footer() {
   return (
@@ -34,9 +35,15 @@ export default function Footer() {
             <SubtitleTypography>
               Quick Links
             </SubtitleTypography>
-            <FooterLink href="/" underline="hover">Home</FooterLink>
-            <FooterLink href="/blogs" underline="hover">Blogs</FooterLink>
-            <FooterLink href="/create" underline="hover">Create Blog</FooterLink>
+            <FooterLink component={RouterLink} to="/" underline="hover">
+              Home
+            </FooterLink>
+            <FooterLink component={RouterLink} to="/blogs" underline="hover">
+              Blogs
+            </FooterLink>
+            <FooterLink component={RouterLink} to="/create" underline="hover">
+              Create Blog
+            </FooterLink>
           </FooterColumn>
 
           {/* About */}
