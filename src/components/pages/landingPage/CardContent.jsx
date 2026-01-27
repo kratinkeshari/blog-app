@@ -3,7 +3,7 @@ import { styled } from "@mui/material/styles";
 
 const CardContent = styled(Box)(({ theme }) => ({
   textAlign: "center",
-  color: "#ffffffcc",
+  color: "#ffffff",
   position: 'relative',
   zIndex: 2,
 }));

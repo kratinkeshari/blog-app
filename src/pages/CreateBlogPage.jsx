@@ -72,14 +72,12 @@ const handlePublish = () => {
     .unwrap()
     .then(() => {
       setSuccessMessage("Blog published successfully!");
-      // Clear form
       setFormData({
         title: "",
         excerpt: "",
         content: "",
         selectedCategory: ""
       });
-      // Optionally navigate to blog feed after a delay
       setTimeout(() => {
         navigate("/blogs");
       }, 1500);

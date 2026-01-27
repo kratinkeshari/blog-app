@@ -1,5 +1,4 @@
-import { useEffect, useState, lazy, Suspense, useMemo, useCallback } from "react";
-import { Box, Typography} from "@mui/material";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { selectAllCategories, selectCategoriesLoading, selectCategoryError, fetchCategories } from "../slices/categorySlice";
@@ -19,23 +18,8 @@ import ExploreWrapper from "../components/pages/landingPage/ExploreWrapper";
 import ExploreButton from "../components/pages/landingPage/ExploreButton";
 import { getPreviousIndex, getNextIndex, getVisibleItems } from "../utils/carouselUtils";
 import { useAutoScroll } from "../hooks/useAutoScroll";
-
-// Helper function to generate srcSet for responsive images
-const getImageSrcSet = (categoryName) => {
-  const name = categoryName.toLowerCase();
-  const sizes = [320, 480, 640, 768, 1024];
-  return sizes.map(size => `/images/categories/${name}-${size}w.avif ${size}w`).join(', ');
-};
-
-// Helper function to generate WebP fallback srcSet
-const getWebPSrcSet = (categoryName) => {
-  const name = categoryName.toLowerCase();
-  const sizes = [320, 480, 640, 768, 1024];
-  return sizes.map(size => `/images/categories/${name}-${size}w.webp ${size}w`).join(', ');
-};
-
-// Sizes attribute based on actual display sizes
-const imageSizes = "(max-width: 600px) 280px, (max-width: 900px) 320px, (max-width: 1200px) 380px, 455px";
+import { getImageSrcSet, getWebPSrcSet, imageSizes } from "../utils/imageUtils";
+import {AppTypography} from "../components/ui";
 
 /* ---------------- component ---------------- */
 export default function LandingPage() {
@@ -98,47 +82,49 @@ export default function LandingPage() {
             </NavigationButton>
 
             <CardsContainer>
-              {visibleCategories.map((cat) => {
-                if (!cat || !cat.id || !cat.name) return null;
-                const isLCP = cat.name === 'Technology';
-                const categoryName = cat.name.toLowerCase();
-                
-                return (
-                  <CardWrapper key={`${cat.id}-${cat.position}`} position={cat.position}>
-                    <CategoryCard 
-                      onClick={() => handleCategoryClick(cat.id)}
-                      position={cat.position}
-                    >
-                      <picture>
-                        <source
-                          type="image/avif"
-                          srcSet={getImageSrcSet(categoryName)}
-                          sizes={imageSizes}
-                        />
-                        <source
-                          type="image/webp"
-                          srcSet={getWebPSrcSet(categoryName)}
-                          sizes={imageSizes}
-                        />
-                        <CardImage
-                          src={`/images/categories/${categoryName}-640w.avif`}
-                          srcSet={getImageSrcSet(categoryName)}
-                          sizes={imageSizes}
-                          alt={`${cat.name} category`}
-                          fetchpriority={isLCP ? "high" : undefined}
-                          loading={isLCP ? undefined : "lazy"}
-                        />
-                      </picture>
-                      <CardOverlay className="card-overlay" />
-                      <CardContent>
-                        <Typography variant="h5" fontWeight={400} mb={2}>
-                          {cat.name}
-                        </Typography>
-                      </CardContent>
-                    </CategoryCard>
-                  </CardWrapper>
-                );
-              })}
+              {!visibleCategories ?
+                <ErrorComponent /> :
+                visibleCategories.map((cat) => {
+                  if (!cat || !cat.id || !cat.name) return null;
+                  const isLCP = cat.name === 'Technology';
+                  const categoryName = cat.name.toLowerCase();
+                  // console.log("Pos ",cat.position);
+                  return (
+                    <CardWrapper key={`${cat.id}-${cat.position}`} position={cat.position}>
+                      <CategoryCard
+                        onClick={() => handleCategoryClick(cat.id)}
+                        position={cat.position}
+                      >
+                        <picture>
+                          <source
+                            type="image/avif"
+                            srcSet={getImageSrcSet(categoryName)}
+                            sizes={imageSizes}
+                          />
+                          <source
+                            type="image/webp"
+                            srcSet={getWebPSrcSet(categoryName)}
+                            sizes={imageSizes}
+                          />
+                          <CardImage
+                            src={`/images/categories/${categoryName}-640w.avif`}
+                            srcSet={getImageSrcSet(categoryName)}
+                            sizes={imageSizes}
+                            alt={`${cat.name} category`}
+                            fetchpriority={isLCP ? "high" : undefined}
+                            loading={isLCP ? undefined : "lazy"}
+                          />
+                        </picture>
+                        <CardOverlay className="card-overlay" />
+                        <CardContent>
+                          <AppTypography variant="h5" fontWeight={400} mb={2} textColor>
+                            {cat.name}
+                          </AppTypography>
+                        </CardContent>
+                      </CategoryCard>
+                    </CardWrapper>
+                  );
+                })}
             </CardsContainer>
 
             <NavigationButton onClick={handleNext} aria-label="Swipe right">

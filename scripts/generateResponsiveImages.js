@@ -77,7 +77,7 @@ async function generateResponsiveImages() {
     }
   }
   
-  console.log('\n✅ All responsive images generated successfully!');
+  console.log('All responsive images generated successfully!');
 }
 
 generateResponsiveImages().catch(console.error);

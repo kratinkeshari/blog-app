@@ -92,13 +92,13 @@ export const createBlog = (blogData, authorEmail, categoryId) => {
   // Create blog
   const newBlog = {
     id: generateId(),
-    title: blogData.title.trim(),
-    content: blogData.content.trim(),
-    excerpt: blogData.excerpt?.trim() || createExcerpt(blogData.content),
-    authorEmail: author.email,
-    authorName: author.name,
-    categoryId: category.id,
-    categoryName: category.name,
+    title: blogData?.title.trim(),
+    content: blogData?.content.trim(),
+    excerpt: blogData?.excerpt?.trim() || createExcerpt(blogData?.content),
+    authorEmail: author?.email,
+    authorName: author?.name,
+    categoryId: category?.id,
+    categoryName: category?.name,
     likes: [], // Array of user emails who liked this post
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()

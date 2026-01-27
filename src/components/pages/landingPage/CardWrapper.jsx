@@ -3,12 +3,12 @@ import { styled } from "@mui/material/styles";
 
 // Scale values for depth effect: position 0 (left) is largest
 const getScaleForPosition = (position) => {
-  const scales = [1.0, 0.9, 0.8, 0.75, 0.7]; // Left to right: largest to smallest
+  const scales = [1.0, 0.95, 0.9, 0.85, 0.8]; // Left to right: largest to smallest
   return scales[position] || 0.7;
 };
 
 const getOpacityForPosition = (position) => {
-  const opacities = [1, 0.95, 0.85, 0.75, 0.65];
+  const opacities = [1.0, 0.95, 0.9, 0.85, 0.8];
   return opacities[position] || 0.65;
 };
 
