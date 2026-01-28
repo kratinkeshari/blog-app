@@ -1,6 +1,6 @@
 import { Typography, Button,MenuItem } from "@mui/material";
 import { AppTypography } from "../components/ui";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCategories, selectAllCategories, selectCategoriesLoading } from "../slices/categorySlice";
 import { selectIsAuthenticated, selectActiveEmail } from "../slices/userSlice";
@@ -11,7 +11,7 @@ import StyledContainer from "../components/pages/createBlogPage/StyledContainer"
 import StyledPaper from "../components/pages/createBlogPage/StyledPaper";
 import StyledAlert from "../components/pages/createBlogPage/StyledAlert";
 import StyledStack from "../components/pages/createBlogPage/StyledStack";
-import StyledTextField from "../components/pages/createBlogPage/StyledTextField";
+import CreateBlogTextField from "../components/pages/createBlogPage/CreateBlogTextField";
 
 export default function CreateBlogPage() {
 const dispatch = useDispatch();
@@ -36,15 +36,15 @@ useEffect(() => {
   dispatch(fetchCategories());
 }, [dispatch]);
 
-const handleInputChange = (event) => {
+const handleInputChange = useCallback((event) => {
   const { name, value } = event.target;
   setFormData(prev => ({
     ...prev,
     [name]: value
   }));
-};
+}, []);
 
-const handlePublish = () => {
+const handlePublish = useCallback(() => {
   // Clear previous messages
   setSuccessMessage("");
   
@@ -85,11 +85,39 @@ const handlePublish = () => {
     .catch((err) => {
       console.error("Failed to publish blog:", err);
     });
-};
+}, [isAuthenticated, userEmail, formData, dispatch, navigate]);
 
-const handleCloseLoginModal = () => {
+const handleCloseLoginModal = useCallback(() => {
   setOpenLoginModal(false);
-};
+}, []);
+
+// Memoize form validation to avoid recalculating on every render
+const isFormValid = useMemo(() => {
+  return formData?.title?.trim() && 
+         formData?.excerpt?.trim() && 
+         formData?.content?.trim() && 
+         formData?.selectedCategory;
+}, [formData]);
+
+// Memoize category menu items
+const categoryMenuItems = useMemo(() => {
+  if (!categories || categories.length === 0) {
+    return (
+      <MenuItem disabled value="">
+        No categories available
+      </MenuItem>
+    );
+  }
+  
+  return categories.map((category) => {
+    if (!category || !category.id) return null;
+    return (
+      <MenuItem key={category.id} value={category.id}>
+        {category.name || 'Unnamed Category'}
+      </MenuItem>
+    );
+  });
+}, [categories]);
 
   return (
     <StyledContainer maxWidth="sm">
@@ -111,7 +139,7 @@ const handleCloseLoginModal = () => {
         )}
 
         <StyledStack spacing={3}>
-          <StyledTextField 
+          <CreateBlogTextField 
             name="title"
             label="Title" 
             value={formData.title}
@@ -120,7 +148,7 @@ const handleCloseLoginModal = () => {
             helperText="Enter a catchy title for your blog"
           />
           
-          <StyledTextField 
+          <CreateBlogTextField 
             name="excerpt"
             label="Excerpt"
             value={formData.excerpt}
@@ -132,7 +160,7 @@ const handleCloseLoginModal = () => {
             inputProps={{ maxLength: 100 }}
           />
           
-          <StyledTextField 
+          <CreateBlogTextField 
             name="content"
             label="Content"
             multiline
@@ -143,7 +171,7 @@ const handleCloseLoginModal = () => {
             helperText="Write the full content of your blog"
           />
 
-          <StyledTextField 
+          <CreateBlogTextField 
             name="selectedCategory"
             select 
             label="Category" 
@@ -158,27 +186,14 @@ const handleCloseLoginModal = () => {
                   : "Please select a category"
             }
           >
-            {categories && categories.length > 0 ? (
-              categories.map((category) => {
-                if (!category || !category.id) return null;
-                return (
-                  <MenuItem key={category.id} value={category.id}>
-                    {category.name || 'Unnamed Category'}
-                  </MenuItem>
-                );
-              })
-            ) : (
-              <MenuItem disabled value="">
-                No categories available
-              </MenuItem>
-            )}
-          </StyledTextField>
+            {categoryMenuItems}
+          </CreateBlogTextField>
 
           <Button 
             variant="contained" 
             size="large"
             onClick={handlePublish}
-            disabled={isCreating || !formData?.title?.trim() || !formData?.excerpt?.trim() || !formData?.content?.trim() || !formData?.selectedCategory}
+            disabled={isCreating || !isFormValid}
           >
             {isCreating ? "Publishing..." : "Publish Blog"}
           </Button>

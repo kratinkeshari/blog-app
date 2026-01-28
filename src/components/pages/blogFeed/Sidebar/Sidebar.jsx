@@ -1,6 +1,6 @@
 import { List, ListItem } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, memo, useCallback, useMemo } from "react";
 import React from "react";
 import { selectAllCategories, fetchCategories } from "../../../../slices/categorySlice";
 import { setFilter, clearFilter, selectBlogFilter } from "../../../../slices/blogSlice";
@@ -31,7 +31,7 @@ const iconMap = {
 };
 
 
-export default function Sidebar() {
+function Sidebar() {
   const dispatch = useDispatch();
   const categories = useSelector(selectAllCategories);
   const filter = useSelector(selectBlogFilter);
@@ -47,13 +47,13 @@ export default function Sidebar() {
     console.log("Fetched categories:", categories);
   }, [categories]);
 
-  const handleExploreAll = () => {
+  const handleExploreAll = useCallback(() => {
     dispatch(clearFilter());
-  };
+  }, [dispatch]);
 
-  const handleCategoryClick = (categoryId) => {
+  const handleCategoryClick = useCallback((categoryId) => {
     dispatch(setFilter({ categoryId }));
-  };
+  }, [dispatch]);
 
   // Handle null/undefined categories
   if (!categories) {
@@ -65,6 +65,41 @@ export default function Sidebar() {
       </SidebarWrapper>
     );
   }
+
+  // Memoize category list items
+  const categoryItems = useMemo(() => {
+    return categories.map((cat) => {
+      if (!cat || !cat.id) return null;
+      const Icon = iconMap[cat.icon];
+      const isActive = selectedCategoryId === cat.id;
+      return (
+        <ListItem key={cat.id} disablePadding>
+          <ResponsiveTooltip
+            title={cat.name}
+            placement="right"
+            arrow
+          >
+            <StyledListItemButton
+              isActive={isActive}
+              onClick={() => handleCategoryClick(cat.id)}
+            >
+              <StyledListItemIcon>
+                {Icon && React.cloneElement(Icon, {
+                  color: isActive ? 'primary' : 'inherit'
+                })}
+              </StyledListItemIcon>
+              <ResponsiveListItemText
+                primary={cat.name}
+                primaryTypographyProps={{
+                  fontWeight: isActive ? 600 : 400
+                }}
+              />
+            </StyledListItemButton>
+          </ResponsiveTooltip>
+        </ListItem>
+      );
+    });
+  }, [categories, selectedCategoryId, handleCategoryClick]);
 
   return (
     <SidebarWrapper>
@@ -99,40 +134,12 @@ export default function Sidebar() {
           </ListItem>
 
           {/* Category list */}
-          {
-            categories.map((cat) => {
-              if (!cat || !cat.id) return null;
-              const Icon = iconMap[cat.icon];
-              const isActive = selectedCategoryId === cat.id;
-              return (
-                  <ListItem key={cat.id} disablePadding>
-                    <ResponsiveTooltip
-                      title={cat.name}
-                      placement="right"
-                      arrow
-                    >
-                      <StyledListItemButton
-                        isActive={isActive}
-                        onClick={() => handleCategoryClick(cat.id)}
-                      >
-                        <StyledListItemIcon>
-                          {Icon && React.cloneElement(Icon, {
-                            color: isActive ? 'primary' : 'inherit'
-                          })}
-                        </StyledListItemIcon>
-                        <ResponsiveListItemText
-                          primary={cat.name}
-                          primaryTypographyProps={{
-                            fontWeight: isActive ? 600 : 400
-                          }}
-                        />
-                      </StyledListItemButton>
-                    </ResponsiveTooltip>
-                  </ListItem>
-                )
-            })}
+          {categoryItems}
         </List>
       </StyledList>
     </SidebarWrapper>
   );
 }
+
+// Wrap with memo to prevent unnecessary re-renders
+export default memo(Sidebar);

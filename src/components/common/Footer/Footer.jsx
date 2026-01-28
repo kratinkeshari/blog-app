@@ -21,7 +21,7 @@ export default function Footer() {
           spacing={4}
         >
           {/* Brand */}
-          <FooterBrand>
+          <FooterBrand item>
             <TitleTypography>
               NotesApp
             </TitleTypography>

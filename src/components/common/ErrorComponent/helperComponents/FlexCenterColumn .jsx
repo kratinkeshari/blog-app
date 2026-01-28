@@ -1,7 +1,7 @@
 import { Box } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-const Wrapper = styled(Box)(() => ({
+const FlexCenterColumn  = styled(Box)(() => ({
   width: "100%",
   minHeight: "300px",
   display: "flex",
@@ -11,4 +11,4 @@ const Wrapper = styled(Box)(() => ({
   textAlign: "center",
 }));
 
-export default Wrapper;
+export default FlexCenterColumn;

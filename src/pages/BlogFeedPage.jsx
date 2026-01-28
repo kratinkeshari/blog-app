@@ -1,6 +1,6 @@
 import { Box } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { fetchBlogs, selectFilteredBlogs, selectBlogsLoading, selectBlogError } from "../slices/blogSlice";
 import Loader from "../components/common/Loader/Loader";
 import ErrorComponent from "../components/common/ErrorComponent/ErrorComponent";
@@ -22,6 +22,16 @@ function BlogFeedPage() {
     dispatch(fetchBlogs());
   }, [dispatch]);
 
+  // Memoize the blog list to prevent unnecessary re-renders
+  const blogList = useMemo(() => {
+    if (!blogs) return null;
+    
+    return blogs.map((blog) => {
+      if (!blog || !blog.id) return null;
+      return <BlogCard key={blog.id} blog={blog} />;
+    });
+  }, [blogs]);
+
 
   return (
     <MainFlexBox>
@@ -40,12 +50,7 @@ function BlogFeedPage() {
               <ErrorComponent />
             ) : (
               <Box>
-                {blogs.map((blog) => {
-                  if (!blog || !blog.id) return null;
-                  return (
-                    <BlogCard key={blog.id} blog={blog} />
-                  )
-                })}
+                {blogList}
               </Box>
             )
           }

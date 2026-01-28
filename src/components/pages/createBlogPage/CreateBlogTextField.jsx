@@ -1,14 +1,14 @@
 import { TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-const StyledTextField = styled(TextField)(({ theme }) => ({
+const CreateBlogTextField = styled(TextField)(({ theme }) => ({
   width: '100%',
 }));
 
 // Set default props common to all TextFields
-StyledTextField.defaultProps = {
+CreateBlogTextField.defaultProps = {
   fullWidth: true,
   required: true,
 };
 
-export default StyledTextField;
+export default CreateBlogTextField;

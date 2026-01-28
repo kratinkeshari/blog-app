@@ -1,11 +1,11 @@
-import Wrapper from './helperComponents/Wrapper';
+import FlexCenterColumn  from './helperComponents/FlexCenterColumn ';
 import Icon from './helperComponents/Icon';
 import Title from './helperComponents/Title';
 import SubText from './helperComponents/SubText';
 
 export default function ErrorComponent() {
   return (
-    <Wrapper>
+    <FlexCenterColumn >
       <Icon />
       <Title>
         We are experiencing heavy traffic
@@ -13,6 +13,6 @@ export default function ErrorComponent() {
       <SubText variant="body2">
         Please try again later.
       </SubText>
-    </Wrapper>
+    </FlexCenterColumn>
   );
 }

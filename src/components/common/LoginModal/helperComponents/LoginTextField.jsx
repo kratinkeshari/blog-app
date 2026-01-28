@@ -1,13 +1,13 @@
 import { TextField } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
-const StyledTextField = styled(TextField)(({ theme }) => ({
+const LoginTextField = styled(TextField)(({ theme }) => ({
     marginBottom: theme.spacing(2),
 }));
 
-StyledTextField.defaultProps = {
+LoginTextField.defaultProps = {
   fullWidth: true,
   variant: 'outlined',
 };
 
-export default StyledTextField;
+export default LoginTextField;

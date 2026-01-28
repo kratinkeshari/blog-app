@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo, useCallback, useMemo } from 'react';
 import { CardContent, IconButton, Chip } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -15,7 +15,7 @@ import SecondaryText from './helperComponents/SecondaryText';
 import BlogTitle from './helperComponents/BlogTitle';
 
 
-export default function BlogCard({ blog }) {
+function BlogCard({ blog }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [openLoginModal, setOpenLoginModal] = useState(false);
   
@@ -23,18 +23,23 @@ export default function BlogCard({ blog }) {
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const userEmail = useSelector(selectActiveEmail);
   
-  // Check if current user has liked this blog
-  const isLiked = blog?.likes && Array.isArray(blog?.likes) && userEmail 
-    ? blog.likes.some(email => email.toLowerCase() === userEmail.toLowerCase())
-    : false;
+  // Memoize expensive computations
+  const isLiked = useMemo(() => {
+    return blog?.likes && Array.isArray(blog?.likes) && userEmail 
+      ? blog.likes.some(email => email.toLowerCase() === userEmail.toLowerCase())
+      : false;
+  }, [blog?.likes, userEmail]);
   
-  const likeCount = blog?.likes ? blog?.likes?.length : 0;
+  const likeCount = useMemo(() => blog?.likes ? blog.likes.length : 0, [blog?.likes]);
+  
+  const contentPreview = useMemo(() => blog?.content?.substring(0, 150) || '', [blog?.content]);
+  const shouldShowReadMore = useMemo(() => blog?.content?.length > 150, [blog?.content]);
 
-  const toggleReadMore = () => {
-    setIsExpanded(!isExpanded);
-  };
+  const toggleReadMore = useCallback(() => {
+    setIsExpanded(prev => !prev);
+  }, []);
 
-  const handleLike = () => {
+  const handleLike = useCallback(() => {
     // If user is not authenticated, open login modal
     if (!isAuthenticated || !userEmail) {
       setOpenLoginModal(true);
@@ -43,14 +48,11 @@ export default function BlogCard({ blog }) {
     
     // Toggle like
     dispatch(toggleBlogLike({ blogId: blog?.id, userEmail }));
-  };
+  }, [isAuthenticated, userEmail, dispatch, blog?.id]);
 
-  const handleCloseLoginModal = () => {
+  const handleCloseLoginModal = useCallback(() => {
     setOpenLoginModal(false);
-  };
-
-  const contentPreview = blog?.content?.substring(0, 150) || '';
-  const shouldShowReadMore = blog?.content?.length > 150;
+  }, []);
 
   return (
     <StyledCard>
@@ -101,3 +103,6 @@ export default function BlogCard({ blog }) {
     </StyledCard>
   );
 }
+
+// Wrap with memo to prevent unnecessary re-renders
+export default memo(BlogCard);

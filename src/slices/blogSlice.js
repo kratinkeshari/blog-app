@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSelector } from "@reduxjs/toolkit";
 import {
   getAllBlogs,
   getBlogsByCategory,
@@ -209,25 +210,28 @@ export const selectSelectedBlog = (state) =>
   state.blog.blogs.find(blog => blog.id === state.blog.selectedBlogId);
 export const selectBlogFilter = (state) => state.blog.filter;
 
-export const selectFilteredBlogs = (state) => {
-  const { blogs, filter } = state.blog;
-  let filtered = blogs;
-  
-  if (filter.categoryId) {
-    filtered = filtered.filter(blog => blog.categoryId === filter.categoryId);
+// Memoized selector for filtered blogs (prevents expensive recalculations)
+export const selectFilteredBlogs = createSelector(
+  [selectAllBlogs, selectBlogFilter],
+  (blogs, filter) => {
+    let filtered = blogs;
+    
+    if (filter.categoryId) {
+      filtered = filtered.filter(blog => blog.categoryId === filter.categoryId);
+    }
+    
+    if (filter.searchQuery) {
+      const query = filter.searchQuery.toLowerCase();
+      filtered = filtered.filter(blog => 
+        blog.title.toLowerCase().includes(query) ||
+        blog.content.toLowerCase().includes(query) ||
+        blog.excerpt.toLowerCase().includes(query)
+      );
+    }
+    
+    return filtered;
   }
-  
-  if (filter.searchQuery) {
-    const query = filter.searchQuery.toLowerCase();
-    filtered = filtered.filter(blog => 
-      blog.title.toLowerCase().includes(query) ||
-      blog.content.toLowerCase().includes(query) ||
-      blog.excerpt.toLowerCase().includes(query)
-    );
-  }
-  
-  return filtered;
-};
+);
 
 export const selectHasUserLiked = (blogId, userEmail) => (state) => {
   const blog = state.blog.blogs.find(b => b.id === blogId);

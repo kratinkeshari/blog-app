@@ -1,6 +1,6 @@
 import ModalBox from "./helperComponents/ModalBox";
 import ModalTitle from "./helperComponents/ModalTitle";
-import StyledTextField from "./helperComponents/StyledTextField";
+import LoginTextField from "./helperComponents/LoginTextField";
 import ButtonContainer from "./helperComponents/ButtonContainer";
 import ModalAlert from "./helperComponents/ModalAlert";
 import LoginButton from "./helperComponents/LoginButton";
@@ -56,7 +56,7 @@ export default function LoginModal({ open, handleClose }) {
                     </ModalAlert>
                 )}
                 
-                <StyledTextField
+                <LoginTextField
                     label="Email"
                     type="email"
                     value={email}
